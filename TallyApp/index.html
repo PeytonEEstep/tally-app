@@ -7,9 +7,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tally">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" type="image/png" href="/icon-192.png">
-  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <title>Tally Counter</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -414,4 +414,23 @@
                     React.createElement('div', { className: 'flex items-center gap-2' },
                       React.createElement(LucideIcons.Target, { className: 'w-5 h-5 text-emerald-400' }),
                       React.createElement('label', { className: `text-sm font-medium ${currentTheme.text}` }, 'Daily Goal')
+                     )
+                  )
+                ),
+                React.createElement('button', { 
+                  onClick: createCounter, 
+                  className: 'w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/25 mt-4' 
+                }, 'Create Counter')
+              )
+            )
+          )
+        )
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(TallyCounter));
+  </script>
+</body>
+</html>
                     
