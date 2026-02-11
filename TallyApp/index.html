@@ -47,9 +47,11 @@
 <body>
   <div id="root"></div>
   <script type="module">
-    import React, { useState, useEffect } from 'https://cdn.skypack.dev/react@18.2.0';
-    import ReactDOM from 'https://cdn.skypack.dev/react-dom@18.2.0/client';
-    import * as LucideIcons from 'https://cdn.skypack.dev/lucide-react@0.263.1';
+    import React, { useState, useEffect } from 'https://esm.sh/react@18.2.0';
+    import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
+    import * as LucideIcons from 'https://esm.sh/lucide-react@0.263.1';
+
+    console.log("🚀 System check: React is loading...");
 
     const COLORS = [
       { name: 'Slate', gradient: 'from-slate-500 to-slate-600', solid: 'bg-slate-500', text: 'text-slate-400', light: 'bg-slate-500/10', border: 'border-slate-500/30' },
@@ -340,97 +342,79 @@
       const activeCounterData = counters.find(c => c.id === activeCounter);
 
       return React.createElement('div', { className: `min-h-screen bg-gradient-to-br ${currentTheme.bg} flex items-center justify-center p-4` },
-        React.createElement('div', { className: 'w-full max-w-md mx-auto h-[700px] relative' },
+        React.createElement('div', { className: 'w-full max-w-md mx-auto h-[700px] relative flex flex-col' },
+          
+          // --- 1. THE HEADER ---
+          React.createElement('div', { className: 'flex justify-between items-center mb-6 px-2' },
+            React.createElement('h1', { className: `text-3xl font-black ${currentTheme.text} tracking-tight` }, 'Tally'),
+            React.createElement('div', { className: 'flex gap-2' },
+              React.createElement('button', { 
+                onClick: () => { vibrate(); setShowCreateCounter(true); },
+                className: 'p-2 rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+              }, React.createElement(LucideIcons.Plus, { size: 24 }))
+            )
+          ),
+
+          // --- 2. THE COUNTER LIST ---
+          React.createElement('div', { className: 'flex-1 overflow-y-auto space-y-4 pb-20' },
+            getSortedCounters().length === 0 ? 
+              React.createElement('div', { className: `text-center py-20 ${currentTheme.textTertiary}` }, 
+                React.createElement(LucideIcons.Hash, { size: 48, className: 'mx-auto mb-4 opacity-20' }),
+                'No counters yet. Tap + to start.'
+              ) : 
+              getSortedCounters().map(counter => (
+                React.createElement('div', { 
+                  key: counter.id,
+                  className: `${currentTheme.card} border ${currentTheme.border} p-5 rounded-3xl flex items-center justify-between transition-all active:scale-[0.98]`
+                },
+                  React.createElement('div', { className: 'flex flex-col' },
+                    React.createElement('span', { className: `${currentTheme.textSecondary} text-xs font-bold uppercase tracking-widest mb-1` }, COLORS[counter.color].name),
+                    React.createElement('span', { className: `${currentTheme.text} text-xl font-bold` }, counter.name)
+                  ),
+                  React.createElement('div', { className: 'flex items-center gap-4' },
+                    React.createElement('button', { 
+                      onClick: () => addClick(1, counter.id),
+                      className: `w-14 h-14 rounded-2xl bg-gradient-to-br ${COLORS[counter.color].gradient} text-white flex items-center justify-center shadow-lg text-2xl font-bold`
+                    }, '+'),
+                    React.createElement('span', { className: `text-3xl font-black min-w-[3rem] text-center ${currentTheme.text}` }, counter.count)
+                  )
+                )
+              ))
+          ),
+
+          // --- 3. YOUR CREATE MODAL (Keep this inside the main return) ---
           showCreateCounter && React.createElement('div', { className: 'absolute inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 rounded-3xl' },
             React.createElement('div', { className: `${currentTheme.cardSolid} rounded-2xl p-6 w-full max-h-full overflow-y-auto border ${currentTheme.border} shadow-2xl` },
               React.createElement('div', { className: 'flex justify-between items-center mb-6' },
                 React.createElement('h2', { className: `text-xl font-semibold ${currentTheme.text}` }, 'Create Counter'),
-                React.createElement('button', { onClick: () => { vibrate(); setShowCreateCounter(false); resetCounterForm(); }, className: `p-2 rounded-lg ${currentTheme.hover} transition-colors` },
+                React.createElement('button', { onClick: () => { vibrate(); setShowCreateCounter(false); resetCounterForm(); }, className: `p-2 rounded-lg ${currentTheme.hover}` },
                   React.createElement(LucideIcons.X, { className: `w-5 h-5 ${currentTheme.textSecondary}` })
                 )
               ),
               React.createElement('div', { className: 'space-y-4' },
                 React.createElement('div', null,
                   React.createElement('label', { className: `text-sm font-medium ${currentTheme.textSecondary} mb-2 block` }, 'Name'),
-                  React.createElement('input', { type: 'text', value: counterForm.name, onChange: (e) => setCounterForm({...counterForm, name: e.target.value}), placeholder: 'Water intake, Push-ups...', className: `w-full px-4 py-2.5 rounded-lg ${currentTheme.input} border ${currentTheme.border} ${currentTheme.text} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`, autoFocus: true })
+                  React.createElement('input', { type: 'text', value: counterForm.name, onChange: (e) => setCounterForm({...counterForm, name: e.target.value}), placeholder: 'Counter Name', className: `w-full px-4 py-2.5 rounded-lg ${currentTheme.input} border ${currentTheme.border} ${currentTheme.text} focus:outline-none` })
                 ),
                 React.createElement('div', null,
                   React.createElement('label', { className: `text-sm font-medium ${currentTheme.textSecondary} mb-2 block` }, 'Color'),
-                  React.createElement('div', { className: 'grid grid-cols-8 gap-2' },
-                    COLORS.map((c, idx) => React.createElement('button', { key: idx, onClick: () => { vibrate(); setCounterForm({...counterForm, color: idx}); }, className: `aspect-square rounded-lg bg-gradient-to-br ${c.gradient} transition-all hover:scale-110 ${counterForm.color === idx ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 scale-110' : ''}` }))
-                  )
-                ),
-                folders.length > 0 && React.createElement('div', null,
-                  React.createElement('label', { className: `text-sm font-medium ${currentTheme.textSecondary} mb-2 block` }, 'Folder'),
-                  React.createElement('select', { value: counterForm.folderId || '', onChange: (e) => setCounterForm({...counterForm, folderId: e.target.value ? parseInt(e.target.value) : null}), className: `w-full px-4 py-2.5 rounded-lg ${currentTheme.input} border ${currentTheme.border} ${currentTheme.text} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all` },
-                    React.createElement('option', { value: '' }, 'None'),
-                    folders.map(folder => React.createElement('option', { key: folder.id, value: folder.id }, folder.name))
-                  )
-                ),
-                React.createElement('div', { className: `flex items-center justify-between p-3 rounded-lg ${currentTheme.empty} border ${currentTheme.border}` },
-                  React.createElement('div', { className: 'flex items-center gap-3' },
-                    React.createElement(LucideIcons.Lock, { className: `w-5 h-5 ${currentTheme.textSecondary}` }),
-                    React.createElement('div', null,
-                      React.createElement('div', { className: `text-sm font-medium ${currentTheme.text}` }, 'Lock Counter'),
-                      React.createElement('div', { className: `text-xs ${currentTheme.textTertiary}` }, 'Prevent taps on home')
-                    )
-                  ),
-                  React.createElement('button', { onClick: () => { vibrate(); setCounterForm({...counterForm, locked: !counterForm.locked}); }, className: `relative w-11 h-6 rounded-full transition-colors ${counterForm.locked ? 'bg-blue-500' : currentTheme.input}` },
-                    React.createElement('div', { className: `absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${counterForm.locked ? 'translate-x-5' : ''} shadow-sm` })
-                  )
-                ),
-                React.createElement('div', { className: `${currentTheme.empty} rounded-lg p-4 border ${currentTheme.border}` },
-                  React.createElement('div', { className: 'flex items-center justify-between mb-3' },
-                    React.createElement('div', { className: 'flex items-center gap-2' },
-                      React.createElement(LucideIcons.Bell, { className: 'w-5 h-5 text-blue-400' }),
-                      React.createElement('label', { className: `text-sm font-medium ${currentTheme.text}` }, 'Reminders')
-                    ),
-                    React.createElement('button', { onClick: () => { vibrate(); setCounterForm({...counterForm, reminderEnabled: !counterForm.reminderEnabled}); }, className: `relative w-11 h-6 rounded-full transition-colors ${counterForm.reminderEnabled ? 'bg-blue-500' : currentTheme.input}` },
-                      React.createElement('div', { className: `absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${counterForm.reminderEnabled ? 'translate-x-5' : ''} shadow-sm` })
-                    )
-                  ),
-                  counterForm.reminderEnabled && React.createElement('div', { className: `space-y-3 pt-3 border-t ${currentTheme.border}` },
-                    React.createElement('div', { className: 'grid grid-cols-2 gap-2' },
-                      React.createElement('button', { onClick: () => { vibrate(); setCounterForm({...counterForm, reminderType: 'daily'}); }, className: `px-4 py-2 rounded-lg font-medium text-sm transition-all ${counterForm.reminderType === 'daily' ? 'bg-blue-500 text-white' : `${currentTheme.empty} ${currentTheme.textSecondary} ${currentTheme.hover}`}` }, 'Daily'),
-                      React.createElement('button', { onClick: () => { vibrate(); setCounterForm({...counterForm, reminderType: 'interval'}); }, className: `px-4 py-2 rounded-lg font-medium text-sm transition-all ${counterForm.reminderType === 'interval' ? 'bg-blue-500 text-white' : `${currentTheme.empty} ${currentTheme.textSecondary} ${currentTheme.hover}`}` }, 'Interval')
-                    ),
-                    counterForm.reminderType === 'daily' ? React.createElement('div', null,
-                      React.createElement('label', { className: `text-xs ${currentTheme.textSecondary} mb-1.5 block` }, 'Time'),
-                      React.createElement('input', { type: 'time', value: counterForm.reminderTime, onChange: (e) => setCounterForm({...counterForm, reminderTime: e.target.value}), className: `w-full px-3 py-2 rounded-lg ${currentTheme.input} border ${currentTheme.border} ${currentTheme.text} text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent` })
-                    ) : React.createElement('div', null,
-                      React.createElement('label', { className: `text-xs ${currentTheme.textSecondary} mb-1.5 block` }, 'Repeat every'),
-                      React.createElement('div', { className: 'flex gap-2' },
-                        React.createElement('input', { type: 'number', value: counterForm.reminderInterval, onChange: (e) => setCounterForm({...counterForm, reminderInterval: e.target.value === '' ? '' : parseInt(e.target.value)}), onBlur: (e) => { const val = parseInt(e.target.value); setCounterForm({...counterForm, reminderInterval: isNaN(val) || val < 1 ? 1 : val}); }, min: '1', className: `flex-1 px-3 py-2 rounded-lg ${currentTheme.input} border ${currentTheme.border} ${currentTheme.text} text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent` }),
-                        React.createElement('select', { value: counterForm.reminderIntervalUnit, onChange: (e) => setCounterForm({...counterForm, reminderIntervalUnit: e.target.value}), className: `px-3 py-2 rounded-lg ${currentTheme.input} border ${currentTheme.border} ${currentTheme.text} text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent` },
-                          React.createElement('option', { value: 'minutes' }, 'Min'),
-                          React.createElement('option', { value: 'hours' }, 'Hrs')
-                        )
-                      )
-                    )
-                  )
-                ),
-                React.createElement('div', { className: `${currentTheme.empty} rounded-lg p-4 border ${currentTheme.border}` },
-                  React.createElement('div', { className: 'flex items-center justify-between mb-3' },
-                    React.createElement('div', { className: 'flex items-center gap-2' },
-                      React.createElement(LucideIcons.Target, { className: 'w-5 h-5 text-emerald-400' }),
-                      React.createElement('label', { className: `text-sm font-medium ${currentTheme.text}` }, 'Daily Goal')
-                     )
+                  React.createElement('div', { className: 'grid grid-cols-4 gap-2' },
+                    COLORS.slice(0, 4).map((c, idx) => React.createElement('button', { key: idx, onClick: () => setCounterForm({...counterForm, color: idx}), className: `aspect-square rounded-lg bg-gradient-to-br ${c.gradient} ${counterForm.color === idx ? 'ring-2 ring-white' : ''}` }))
                   )
                 ),
                 React.createElement('button', { 
                   onClick: createCounter, 
-                  className: 'w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/25 mt-4' 
+                  className: 'w-full py-4 bg-blue-500 text-white font-bold rounded-xl mt-4' 
                 }, 'Create Counter')
               )
             )
           )
         )
       );
-    }
+    } // End of TallyCounter function
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(React.createElement(TallyCounter));
   </script>
 </body>
 </html>
-                    
